@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 from advectionHelpers import cosBell_01_05, l2error
-from schemesBasic import FTBS, CTCS, FTCS
+from schemes import FTBS, CTCS, FTCS, Spectral
 
 # First make sure that the plots folder exists
 if not os.path.exists("plots"):
@@ -39,6 +39,7 @@ def growingErrors(init, schemes, outFile,
     x = np.arange(xLim[0], xLim[1], dx)
     dt = endTime/nt
     c = nx*u*endTime/(nt*(xLim[1] - xLim[0])) # Courant number, dt*u/dx
+    params = (c, dt)
     print('Courant number =', c)
     
     # Set the initial conditions for all schemes
@@ -60,7 +61,7 @@ def growingErrors(init, schemes, outFile,
         # Loop through all time steps
         for n in range(nt):
             # Update phi
-            schemes[i](phiLevels, c)
+            schemes[i](phiLevels, params)
             # Calculate the analytic solution
             phiA = init((x - u*times[n+1])%(xLim[1] - xLim[0]))
             # Calculate the l2 error
@@ -76,7 +77,7 @@ def growingErrors(init, schemes, outFile,
     plt.ylabel(r'$\ell_2$ error')
     plt.savefig("plots/"+outFile)
 
-schemes = [FTBS, CTCS, FTCS]
+schemes = [FTBS, CTCS, FTCS, Spectral]
 
 growingErrors(cosBell_01_05, schemes, "basicSchemesCosErrors.pdf",
               nx = 40, nt = 100, u = 1, endTime = 1)

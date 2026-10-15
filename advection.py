@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 from advectionHelpers import cosBell_01_05, indicator_01_05
-from schemesBasic import FTBS, CTCS, FTCS, Spectral
+from schemes import FTBS, CTCS, FTCS, Spectral
 
 # First make sure that the plots folder exists
 if not os.path.exists("plots"):
@@ -15,7 +15,7 @@ if not os.path.exists("plots"):
 
 def compareSchemeSnapshots(init, schemes, outFile,
                            nx = 40, nt = 10, u = 1, endTime = 0.4,
-                           xLim = [0,1], yLim = [None,None]):
+                           xLim = [0,1], yLim = [None,None], print_courant=False):
     '''
     Author: Hilary Weller <h.weller@reading.ac.uk>
     Compares snapshots of results of advection schemes using periodic boundaries
@@ -40,8 +40,9 @@ def compareSchemeSnapshots(init, schemes, outFile,
     x = np.arange(xLim[0], xLim[1], dx)
     dt = endTime/nt
     c = nx*u*endTime/(nt*(xLim[1] - xLim[0])) # Courant number, dt*u/dx
-    params = (c, dt)
-    print('Courant number =', c)
+    params = (c, dt, xLim)
+    if print_courant:
+        print('Courant number =', c)
     
     # Set the initial conditions
     phi0 = init(x)
@@ -73,21 +74,26 @@ def compareSchemeSnapshots(init, schemes, outFile,
     plt.close()
 
 # List of functions to do the advection
-schemes = [FTBS, CTCS, FTCS]
+schemes = [[FTBS, CTCS, FTCS], [FTBS, CTCS, Spectral]]
+# List of initial conditions
+inits = [cosBell_01_05, indicator_01_05]
+# Filenames for storage
+filenames = ['basicSchemesCos.pdf', 'basicSchemesSquare.pdf', 'spectralCos.pdf', 'spectralSquare.pdf']
 
-## Loop this bit
+# Solve the advection equation for each scheme and initial condition
+file_idx = 0
+print_courant = False
+for schemelist in schemes:
+    for init in inits:
+        if file_idx == len(filenames) - 1:
+            print_courant = True
+        compareSchemeSnapshots(init, schemelist, filenames[file_idx],
+                       nx = 40, nt = 10, u = 1, endTime = 0.2, xLim = [0,1], print_courant=print_courant)
+        file_idx += 1
 
-compareSchemeSnapshots(cosBell_01_05, schemes, "basicSchemesCos.pdf",
-                       nx = 40, nt = 20, u = 1, endTime = 0.2, xLim = [0,1])
 
-compareSchemeSnapshots(indicator_01_05, schemes, "basicSchemesIndicator.pdf",
-                       nx = 40, nt = 20, u = 1, endTime = 0.2, xLim = [0,1])
 
-compareSchemeSnapshots(cosBell_01_05, [Spectral], "spectralCos.pdf",
-                       nx = 40, nt = 20, u = 1, endTime = 0.2, xLim = [0,1])
 
-compareSchemeSnapshots(indicator_01_05, [Spectral], "spectralIndicator.pdf",
-                       nx = 40, nt = 20, u = 1, endTime = 0.2, xLim = [0,1])
 
 
 

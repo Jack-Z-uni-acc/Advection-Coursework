@@ -16,7 +16,7 @@ def FTBS(phiLevels, params):
         None
     '''
     # Unpack the Courant number from params
-    (c, _) = params
+    (c, _, _) = params
     # Add another time level to the list, copying from the most recent
     phiLevels.append(phiLevels[-1].copy())
     # Labels for phi at time levels n and n+1
@@ -45,7 +45,7 @@ def FTCS(phiLevels, params):
         None
     '''
     # Unpack the Courant number from params
-    (c, _) = params
+    (c, _, _) = params
     # Add another time level to the list, copying from the most recent
     phiLevels.append(phiLevels[-1].copy())
     # Labels for phi at time levels n and n+1
@@ -75,11 +75,11 @@ def CTCS(phiLevels, params):
         None
     '''
     # Unpack the Courant number from params
-    (c, _) = params
+    (c, _, _) = params
     # If phiLevels[1] is not set, calculate it using FTCS
     if len(phiLevels) == 1:
         phiOld = phiLevels[0].copy()
-        FTCS(phiLevels, c)
+        FTCS(phiLevels, params)
         phiLevels.insert(0, phiOld)
         return None
     
@@ -113,7 +113,7 @@ def Spectral(phiLevels, params):
         None
     '''
     # Unpack the timestep from params
-    (_, dt) = params
+    (_, dt, xLim) = params
     # Add another time level to the list, copying from the most recent
     phiLevels.append(phiLevels[-1].copy())
     # Labels for phi at time levels n and n+1
@@ -122,8 +122,8 @@ def Spectral(phiLevels, params):
 
     # Update phi for all points
     nx = len(phiOld)
-    dx = 2 * np.pi / nx
-    k = np.fft.fftfreq(nx, d=dx) * 2 * np.pi
+    dx = (xLim[1] - xLim[0]) / nx
+    k = np.fft.fftfreq(nx, d=dx) * (xLim[1] - xLim[0])
     phi_hat = np.fft.fft(phiOld)
     d_phi_hat = 1j * k * phi_hat
     d_phi = np.fft.ifft(d_phi_hat).real
