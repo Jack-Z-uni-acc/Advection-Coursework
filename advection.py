@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 from advectionHelpers import cosBell_01_05, indicator_01_05
-from schemesBasic import FTBS, CTCS, FTCS
+from schemesBasic import FTBS, CTCS, FTCS, Spectral
 
 # First make sure that the plots folder exists
 if not os.path.exists("plots"):
@@ -40,6 +40,7 @@ def compareSchemeSnapshots(init, schemes, outFile,
     x = np.arange(xLim[0], xLim[1], dx)
     dt = endTime/nt
     c = nx*u*endTime/(nt*(xLim[1] - xLim[0])) # Courant number, dt*u/dx
+    params = (c, dt)
     print('Courant number =', c)
     
     # Set the initial conditions
@@ -60,7 +61,7 @@ def compareSchemeSnapshots(init, schemes, outFile,
         # time level array is always phiLevels[-1]
         phiLevels = [phi0.copy()]
         for n in range(nt):
-            schemes[i](phiLevels, c)
+            schemes[i](phiLevels, params)
         plt.plot(x, phiLevels[-1], cols[i], label = schemes[i].__name__)
     
     plt.xlim(xLim)
@@ -74,8 +75,51 @@ def compareSchemeSnapshots(init, schemes, outFile,
 # List of functions to do the advection
 schemes = [FTBS, CTCS, FTCS]
 
+## Loop this bit
+
 compareSchemeSnapshots(cosBell_01_05, schemes, "basicSchemesCos.pdf",
                        nx = 40, nt = 20, u = 1, endTime = 0.2, xLim = [0,1])
 
 compareSchemeSnapshots(indicator_01_05, schemes, "basicSchemesIndicator.pdf",
                        nx = 40, nt = 20, u = 1, endTime = 0.2, xLim = [0,1])
+
+compareSchemeSnapshots(cosBell_01_05, [Spectral], "spectralCos.pdf",
+                       nx = 40, nt = 20, u = 1, endTime = 0.2, xLim = [0,1])
+
+compareSchemeSnapshots(indicator_01_05, [Spectral], "spectralIndicator.pdf",
+                       nx = 40, nt = 20, u = 1, endTime = 0.2, xLim = [0,1])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
