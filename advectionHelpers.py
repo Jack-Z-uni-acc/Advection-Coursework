@@ -1,5 +1,5 @@
 # Helper functions for testing advection schemes.
-# Authors: Hilary Weller <h.weller@reading.ac.uk>
+# Authors: Hilary Weller <h.weller@reading.ac.uk>, Jack Zanker <j.zanker26@imperial.ac.uk>
 
 import numpy as np
 

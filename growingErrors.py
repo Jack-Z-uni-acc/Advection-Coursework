@@ -6,7 +6,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-from advectionHelpers import cosBell_0_05, l2error
+from advectionHelpers import cosBell_01_05, l2error
 from schemesBasic import FTBS, CTCS, FTCS
 
 # First make sure that the plots folder exists
@@ -78,5 +78,5 @@ def growingErrors(init, schemes, outFile,
 
 schemes = [FTBS, CTCS, FTCS]
 
-growingErrors(cosBell_0_05, schemes, "basicSchemesCosErrors.pdf",
+growingErrors(cosBell_01_05, schemes, "basicSchemesCosErrors.pdf",
               nx = 40, nt = 100, u = 1, endTime = 1)

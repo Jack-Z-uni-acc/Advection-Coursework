@@ -1,14 +1,16 @@
 import spectralTools as st
 from numpy import sin, isclose
+from advectionHelpers import cosBell_01_05, indicator_01_05
 
-def p0(x):
-	return sin(x)
+cos_solver = st.solver(cosBell_01_05)
+square_solver = st.solver(indicator_01_05)
 
-solver = st.solver(p0)
+for n in range(1, cos_solver.nsteps + 1):
+	cos_solver.step()
+	square_solver.step()
+	if isclose(cos_solver.t, cos_solver.T / 2) or isclose(cos_solver.t, cos_solver.T):
+		cos_solver.store()
+		square_solver.store()
 
-for n in range(1, solver.nsteps + 1):
-	solver.step()
-	if isclose(solver.t, solver.T / 2) or isclose(solver.t, solver.T):
-		solver.store()
-
-st.plot(solver, '1D-advection-solution.png')
+st.plot(cos_solver, '1D-advection-solution.png')
+st.plot(square_solver, '1D-advection-solution_square.png')
