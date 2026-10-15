@@ -27,7 +27,7 @@ class solver:
 		self.p -= self.dt * self.p * dp_dx
 		self.t += self.dt
 
-def plot(solver, filename, folder='Figures'):
+def plot(solver, filename, folder='plots'):
 	os.makedirs(folder, exist_ok=True)
 	#filepath = os.path.join(folder, filename)
 
