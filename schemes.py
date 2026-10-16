@@ -113,39 +113,21 @@ def Spectral(phiLevels, params):
         None
     '''
     # Unpack the timestep from params
-    (_, dt, xLim) = params
-    # Add another time level to the list, copying from the most recent
-    phiLevels.append(phiLevels[-1].copy())
-    # Labels for phi at time levels n and n+1
-    phiOld = phiLevels[0]
-    phiNew = phiLevels[1]
+    (c, dt, xLim) = params
+    # Copy the most recent time level
+    phiOld = phiLevels[-1].copy()
 
     # Update phi for all points
     nx = len(phiOld)
     dx = (xLim[1] - xLim[0]) / nx
-    k = np.fft.fftfreq(nx, d=dx) * (xLim[1] - xLim[0])
+    k = np.fft.fftfreq(nx, d=dx) * 2 * np.pi
     phi_hat = np.fft.fft(phiOld)
-    d_phi_hat = 1j * k * phi_hat
-    d_phi = np.fft.ifft(d_phi_hat).real
-    phiNew = phiOld - dt * phiOld * d_phi
+    phiNew = np.fft.ifft(phi_hat * np.exp(-1j * k * c * dx)).real
+    phiLevels.append(phiNew)
 
     # Remove the old value of phi
     phiLevels.pop(0)
     return None
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

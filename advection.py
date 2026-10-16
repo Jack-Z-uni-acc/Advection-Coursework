@@ -13,9 +13,9 @@ from schemes import FTBS, CTCS, FTCS, Spectral
 if not os.path.exists("plots"):
     os.makedirs("plots")
 
-def compareSchemeSnapshots(init, schemes, outFile,
+def compareSchemeSnapshots(init, schemes, outFile, print_courant,
                            nx = 40, nt = 10, u = 1, endTime = 0.4,
-                           xLim = [0,1], yLim = [None,None], print_courant=False):
+                           xLim = [0,1], yLim = [None,None]):
     '''
     Author: Hilary Weller <h.weller@reading.ac.uk>
     Compares snapshots of results of advection schemes using periodic boundaries
@@ -83,15 +83,14 @@ filenames = ['basicSchemesCos.pdf', 'basicSchemesSquare.pdf', 'spectralCos.pdf',
 # Solve the advection equation for each scheme and initial condition
 file_idx = 0
 print_courant = False
+
 for schemelist in schemes:
     for init in inits:
         if file_idx == len(filenames) - 1:
             print_courant = True
         compareSchemeSnapshots(init, schemelist, filenames[file_idx],
-                       nx = 40, nt = 10, u = 1, endTime = 0.2, xLim = [0,1], print_courant=print_courant)
+                       nx = 40, nt = 20, u = 1, endTime = 0.2, xLim = [0,1], print_courant=print_courant)
         file_idx += 1
-
-
 
 
 
