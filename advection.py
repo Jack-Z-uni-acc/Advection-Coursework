@@ -21,21 +21,28 @@ def main():
         '''
         Author: Hilary Weller <h.weller@reading.ac.uk>
         Compares snapshots of results of advection schemes using periodic boundaries
+        and records numerical errors
         Parameters:
-            nx (int): The number of points in space
             init (callable): Function to set the initial conditions.
             schemes (list of callable): List of functions to evaluate the schemes.
+            print_courant (bool): Prints the Courant number if True
+            outFile (string): The name of the output file.
+            plot (bool): Plots solution snapshots if True
+            return_error (bool): Returns the numerical error resulting from each 
+            scheme if True
+            nx (int): The number of points in space
             nt (int): The number of time steps.
             u (float): The wind speed
             endTime (float) : The final time
-            outFile (string): The name of the output file.
             xLim (tuple): The minimum (xLim[0]) and maximim (xLim[1]) x-values of
                           the domain. xLim[1] is not part of the domain when periodic
             yLim (tuple): The minimum (yLim[0]) and maximum (yLim[1]) y values of
                           the graph. If [None,None] is specified then default limits
                           are used.
         Returns:
-            None
+            None if return_error is False
+            errors (1darray): 1d array of l2 error at endTime incurred by each scheme
+                              if return_error is True.
         '''
         # Derived parameters
         dx = (xLim[1] - xLim[0])/nx
@@ -107,45 +114,71 @@ def main():
                            nx = 40, nt = 20, u = 1, endTime = 0.2, xLim = [0,1], print_courant=print_courant)
             file_idx += 1
 
-    # Compare errors between schemes over a range of temporal and spatial step numbers
-    all_schemes = [FTBS, CTCS, FTCS, Spectral]
-    nx_range = np.arange(10, 100)
-    nt_range = np.arange(10, 100)
-    return_error = True
-    print_courant = False
-    init_errors = []
-    error_filenames = ['cosError_nx.pdf', 'cosError_nt.pdf', 'squareError_nx.pdf', 'squareError_nt.pdf']
-    idx = 0
+    def plotErrors(nx_range, nt_range, xLim=[0,1], endTime=0.2):
+        '''
+        Author: Hilary Weller <h.weller@reading.ac.uk>
+        Compares snapshots of results of advection schemes using periodic boundaries
+        Parameters:
+            nx (int): The number of points in space
+            init (callable): Function to set the initial conditions.
+            schemes (list of callable): List of functions to evaluate the schemes.
+            nt (int): The number of time steps.
+            u (float): The wind speed
+            endTime (float) : The final time
+            outFile (string): The name of the output file.
+            xLim (tuple): The minimum (xLim[0]) and maximim (xLim[1]) x-values of
+                          the domain. xLim[1] is not part of the domain when periodic
+            yLim (tuple): The minimum (yLim[0]) and maximum (yLim[1]) y values of
+                          the graph. If [None,None] is specified then default limits
+                          are used.
+        Returns:
+            None
+        '''
+        # Compare errors between schemes over a range of temporal and spatial step numbers
+        all_schemes = [FTBS, CTCS, FTCS, Spectral]
+        dx_range = 1 / nx_range
+        dt_range = endTime / nt_range
+        return_error = True
+        print_courant = False
+        init_errors = []
+        error_filenames = ['cosError_nx.pdf', 'cosError_nt.pdf', 'squareError_nx.pdf', 'squareError_nt.pdf']
+        idx = 0
 
-    for init in inits:
-        nx_errors = []
-        for nx in nx_range:
-            error = compareSchemes(init, all_schemes, nx=nx, nt=20, u=1, endTime=0.2, xLim=[0,1],
-                         print_courant=print_courant, return_error=True)
-            nx_errors.append(error)
-        nx_errors = np.array(nx_errors).T
-        nt_errors = []
-        for nt in nt_range:
-            error = compareSchemes(init, all_schemes, nx=40, nt=nt, u=1, endTime=0.2, xLim=[0,1],
-                         print_courant=print_courant, return_error=True)
-            nt_errors.append(error)
-        nt_errors = np.array(nt_errors).T
-        for i in range(len(all_schemes)):
-            plt.plot(nx_range, nx_errors[i], label=all_schemes[i].__name__)
-        plt.xlabel('Number of spatial discretisation steps')
-        plt.ylabel('l2 error')
-        plt.legend()
-        plt.savefig('plots/'+error_filenames[idx])
-        plt.close()
-        idx +=1
-        for i in range(len(all_schemes)):
-            plt.plot(nt_range, nt_errors[i], label=all_schemes[i].__name__)
-        plt.xlabel('Number of temporal discretisation steps')
-        plt.ylabel('l2 error')
-        plt.legend()
-        plt.savefig('plots/'+error_filenames[idx])
-        plt.close()
-        idx += 1
+        for init in inits:
+            nx_errors = []
+            for nx in nx_range:
+                error = compareSchemes(init, all_schemes, nx=nx, nt=20, u=1, endTime=endTime, xLim=xLim,
+                             print_courant=print_courant, return_error=True)
+                nx_errors.append(error)
+            nx_errors = np.array(nx_errors).T
+            nt_errors = []
+            for nt in nt_range:
+                error = compareSchemes(init, all_schemes, nx=40, nt=nt, u=1, endTime=endTime, xLim=xLim,
+                             print_courant=print_courant, return_error=True)
+                nt_errors.append(error)
+            nt_errors = np.array(nt_errors).T
+            for i in range(len(all_schemes)):
+                plt.plot(dx_range, nx_errors[i], label=all_schemes[i].__name__)
+            plt.xlabel('Spatial stepsize')
+            plt.ylabel('l2 error')
+            plt.yscale('linear')
+            plt.legend()
+            plt.savefig('plots/'+error_filenames[idx])
+            plt.close()
+            idx +=1
+            for i in range(len(all_schemes)):
+                plt.plot(dt_range, nt_errors[i], label=all_schemes[i].__name__)
+            plt.xlabel('Temporal stepsize')
+            plt.ylabel('l2 error')
+            plt.yscale('linear')
+            plt.legend()
+            plt.savefig('plots/'+error_filenames[idx])
+            plt.close()
+            idx += 1
+
+    nx_range = np.arange(10, 100, 5)
+    nt_range = np.arange(10, 100, 5)
+    plotErrors(nx_range, nt_range)
 
 # Run script
 
