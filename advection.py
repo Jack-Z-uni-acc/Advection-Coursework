@@ -116,14 +116,14 @@ def main():
                            nx = 40, nt = 20, u = 1, endTime = 0.2, xLim = [0,1], print_courant=print_courant)
             file_idx += 1
 
-    def plotErrors(nx_range, nt_range, xLim=[0,1], endTime=0.2):
+    def plotErrors(nx_range, nt=20, xLim=[0,1], endTime=0.2):
         '''
         Author: Jack Zanker <j.zanker@imperial.ac.uk>
         Plots the l2 error at terminal time for numerical advection schemes relative to 
-        spatial and temporal discretisation stepsizes.
+        spatial discretisation stepsizes.
         Parameters:
             nx_range (1darray): Array of integer spatial discretiation mesh sizes to test over.
-            nt_range (1darray): Array of integer temporal discretiation mesh sizes to test over.
+            nt (int): Number of timesteps.
             xLim (tuple): The minimum (xLim[0]) and maximim (xLim[1]) x-values of
               the domain. xLim[1] is not part of the domain when periodic
             endTime (float) : The final time
@@ -134,14 +134,13 @@ def main():
         # Setup parameters to test over all schemes and a range of discretisation steps
         all_schemes = [FTBS, CTCS, FTCS, Spectral]
         dx_range = 1 / nx_range
-        dt_range = endTime / nt_range
         return_error = True
         print_courant = False
         init_errors = []
-        error_filenames = ['cosError_nx.pdf', 'cosError_nt.pdf', 'squareError_nx.pdf', 'squareError_nt.pdf']
+        error_filenames = ['FDcosError.pdf', 'SpectralcosError.pdf', 'squareError.pdf', 'SpectralsquareError.pdf']
         idx = 0
 
-        # Create separate plots for each initial condition
+        # Create separate plots for each initial condition comparing finitie difference schemes
         for init in inits:
             # Error as a function of spatial discretisation step
             nx_errors = []
@@ -150,37 +149,29 @@ def main():
                              print_courant=print_courant, return_error=True)
                 nx_errors.append(error)
             nx_errors = np.array(nx_errors).T
-            # Error as a function of temporal discretisation step
-            nt_errors = []
-            for nt in nt_range:
-                error = compareSchemes(init, all_schemes, nx=40, nt=nt, u=1, endTime=endTime, xLim=xLim,
-                             print_courant=print_courant, return_error=True)
-                nt_errors.append(error)
-            nt_errors = np.array(nt_errors).T
             # Produce and save error plots
-            for i in range(len(all_schemes)):
+            for i in range(len(all_schemes) - 1):
                 plt.plot(dx_range, nx_errors[i], label=all_schemes[i].__name__)
-            plt.xlabel('Spatial stepsize')
+            plt.xlabel('Stepsize')
             plt.ylabel('l2 error')
             plt.yscale('linear')
             plt.legend()
             plt.savefig('plots/'+error_filenames[idx])
             plt.close()
             idx +=1
-            for i in range(len(all_schemes)):
-                plt.plot(dt_range, nt_errors[i], label=all_schemes[i].__name__)
-            plt.xlabel('Temporal stepsize')
+            # Plot the error for the spectral method
+            plt.plot(dx_range, nx_errors[-1], label='Spectral')
+            plt.xlabel('Stepsize')
             plt.ylabel('l2 error')
             plt.yscale('linear')
             plt.legend()
             plt.savefig('plots/'+error_filenames[idx])
             plt.close()
-            idx += 1
+            idx+=1
 
     # Parameters to test over
-    nx_range = np.arange(10, 100, 5)
-    nt_range = np.arange(10, 100, 5)
-    plotErrors(nx_range, nt_range)
+    nx_range = 2**np.arange(2, 10)
+    plotErrors(nx_range)
 
 # Run script
 
