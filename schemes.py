@@ -123,9 +123,9 @@ def Spectral(phiLevels, params):
     # Update phi for all points
     nx = len(phiOld)
     dx = (xLim[1] - xLim[0]) / nx
-    k = np.fft.fftfreq(nx, d=dx) * 2 * np.pi
+    k = np.fft.fftfreq(nx, d=dx)
     phi_hat = np.fft.fft(phiOld)
-    phiNew = np.fft.ifft(phi_hat * np.exp(-1j * k * c * dx)).real
+    phiNew = np.fft.ifft(phi_hat * np.exp(-2j * np.pi * k * c * dx)).real
     phiLevels.append(phiNew)
 
     # Remove the old value of phi
