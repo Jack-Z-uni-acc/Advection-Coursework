@@ -11,7 +11,8 @@ def FTBS(phiLevels, params):
     Parameters:
         phiLevels ([1darray]): A list length one containing a 1darray which is
                          the latest value of phi, to be updated.
-        params (tuple): (c, dt) contains the Courant number and the timestep dt.
+        params (tuple): (c, dt, xLim) contains the Courant number, the timestep dt
+                        and the domain information xLim.
     Returns:
         None
     '''
@@ -39,8 +40,8 @@ def FTCS(phiLevels, params):
     phiLevels is updated. Nothing is returned
     Parameters:
         phiLevels ([1darray]): A list length one containing a 1darray which is
-                         the latest value of phi, to be updated.
-        params (tuple): (c, dt) contains the Courant number and the timestep dt.
+        params (tuple): (c, dt, xLim) contains the Courant number, the timestep dt
+                        and the domain information xLim.
     Returns:
         None
     '''
@@ -70,7 +71,8 @@ def CTCS(phiLevels, params):
     Parameters:
         phiLevels ([1darray,1darray]): A list of two consecutive values of phi.
                    If only one is present, the next is created using FTCS.
-        params (tuple): (c, dt) contains the Courant number and the timestep dt.
+        params (tuple): (c, dt, xLim) contains the Courant number, the timestep dt
+                    and the domain information xLim.
     Returns:
         None
     '''
@@ -108,7 +110,8 @@ def Spectral(phiLevels, params):
     Parameters:
         phiLevels ([1darray]): A list length one containing a 1darray which is
                          the latest value of phi, to be updated.
-        params (tuple): (c, dt) contains the Courant number and the timestep dt.
+        params (tuple): (c, dt, xLim) contains the Courant number, the timestep dt
+                        and the domain information xLim.
     Returns:
         None
     '''
