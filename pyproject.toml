@@ -1,7 +1,7 @@
 [project]
 name = "advection-coursework"
 version = "0.1.0"
-description = "Add your description here"
+description = "Numerical schemes for the 1d advection equation"
 readme = "README.md"
 authors = [
     { name = "Jack Zanker", email = "zankerjack1@gmail.com" }
