@@ -170,7 +170,7 @@ def main():
             idx+=1
 
     # Parameters to test over
-    nx_range = 2**np.arange(2, 10)
+    nx_range = np.arange(10, 100)
     plotErrors(nx_range)
 
 # Run script
