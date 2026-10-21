@@ -151,7 +151,6 @@ def Spectral(phiLevels, params):
     nx = len(phiOld)
     dx = (xLim[1] - xLim[0]) / nx
     k = np.fft.fftfreq(nx, d=dx) * 2 * np.pi
-    print(k)
     phi_hat = np.fft.fft(phiOld)
     phiNew = np.fft.ifft(phi_hat * np.exp(-1j * k * c * dx)).real
     phiLevels.append(phiNew)
@@ -159,24 +158,6 @@ def Spectral(phiLevels, params):
     # Remove the old value of phi
     phiLevels.pop(0)
     return None
-
-def Spectral1(phiLevels, params):
-
-    (c, dt, xLim, init) = params
-
-    nx = len(phiLevels[-1])
-    grid = np.linspcae(-np.pi, np.pi, nx)
-
-    scale = (xLim[1] - xLim[0]) / (2 * np.pi)
-    shift = (xLim[0] + xLim[1]) / 2
-    y = lambda x: x / scale + shift
-    f = lambda x: init(y(x))
-    A = np.fft.fft(f(grid))
-
-    print(A.shape)
-
-if __name__ == '__main__':
-    Spectral1(np.sin(np.linspace(0, 1, 100)),(0.1,0.01,[0,1], lambda x: np.sin(x)))
 
 
 

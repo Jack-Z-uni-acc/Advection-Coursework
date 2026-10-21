@@ -39,7 +39,7 @@ def growingErrors(init, schemes, outFile,
     x = np.arange(xLim[0], xLim[1], dx)
     dt = endTime/nt
     c = nx*u*endTime/(nt*(xLim[1] - xLim[0])) # Courant number, dt*u/dx
-    params = (c, dt)
+    params = (c, dt, xLim)
     print('Courant number =', c)
     
     # Set the initial conditions for all schemes
