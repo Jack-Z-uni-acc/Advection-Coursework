@@ -121,36 +121,6 @@ def Spectral(phiLevels, params):
     nx = len(phiOld)
     dx = (xLim[1] - xLim[0]) / nx
     k = np.fft.fftfreq(nx, d=dx) * 2 * np.pi
-    print(k)
-    phi_hat = np.fft.fft(phiOld)
-    phiNew = np.fft.ifft(phi_hat * np.exp(-1j * k * c * dx)).real
-    phiLevels.append(phiNew)
-
-    # Remove the old value of phi
-    phiLevels.pop(0)
-    return None
-
-def Spectral(phiLevels, params):
-    '''
-    Author: Jack Zanker <j.zanker@imperial.ac.uk>
-    Solves the linear advection equation for one time step using the spectral method.
-    phiLevels is updated. Nothing is returned
-    Parameters:
-        phiLevels ([1darray]): A list length one containing a 1darray which is
-                         the latest value of phi, to be updated.
-        params (tuple): (c, dt) contains the Courant number and the timestep dt.
-    Returns:
-        None
-    '''
-    # Unpack the timestep from params
-    (c, dt, xLim) = params
-    # Copy the most recent time level
-    phiOld = phiLevels[-1].copy()
-
-    # Update phi for all points
-    nx = len(phiOld)
-    dx = (xLim[1] - xLim[0]) / nx
-    k = np.fft.fftfreq(nx, d=dx) * 2 * np.pi
     phi_hat = np.fft.fft(phiOld)
     phiNew = np.fft.ifft(phi_hat * np.exp(-1j * k * c * dx)).real
     phiLevels.append(phiNew)
