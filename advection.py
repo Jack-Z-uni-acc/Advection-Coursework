@@ -131,8 +131,8 @@ def main():
             None
         '''
 
-        # Setup parameters to test over all schemes and a range of discretisation steps
-        all_schemes = [FTBS, CTCS, FTCS, Spectral]
+        # Setup parameters to test over a range of schemes and discretisation steps
+        all_schemes = [FTBS, CTCS, Spectral]
         dx_range = 1 / nx_range
         return_error = True
         print_courant = False
@@ -154,7 +154,7 @@ def main():
                 plt.plot(dx_range, nx_errors[i], label=all_schemes[i].__name__)
             plt.xlabel('Stepsize')
             plt.ylabel('l2 error')
-            plt.yscale('linear')
+            plt.grid()
             plt.legend()
             plt.savefig('plots/'+error_filenames[idx])
             plt.close()
@@ -163,7 +163,7 @@ def main():
             plt.plot(dx_range, nx_errors[-1], label='Spectral')
             plt.xlabel('Stepsize')
             plt.ylabel('l2 error')
-            plt.yscale('linear')
+            plt.grid()
             plt.legend()
             plt.savefig('plots/'+error_filenames[idx])
             plt.close()
