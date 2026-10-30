@@ -43,6 +43,18 @@ def indicator_01_05(x):
     '''
     return indicator(x, 0.1, 0.5)
 
+def expCos(x):
+    '''
+    Returns an exponential cosine function which is smooth with infinitely
+    many nonzero Fourier coefficients
+    Author: Jack Zanker <j.zanker26@imperial.ac.uk
+    Parameters:
+        x (1darray): The x-locations for calculating the function
+    Returns:
+        phi (1darray): exponential sine function
+    '''
+    return np.exp(np.sin(np.pi * 2 * x))
+
 
 def l2error(phi, phiA):
     '''

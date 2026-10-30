@@ -8,7 +8,7 @@ def main():
     import matplotlib.pyplot as plt
     import numpy as np
     import os
-    from advectionHelpers import cosBell_01_05, indicator_01_05, l2error
+    from advectionHelpers import cosBell_01_05, indicator_01_05, l2error, expCos
     from schemes import FTBS, CTCS, FTCS, Spectral
 
     # First make sure that the plots folder exists
@@ -133,11 +133,12 @@ def main():
 
         # Setup parameters to test over a range of schemes and discretisation steps
         all_schemes = [FTBS, CTCS, Spectral]
+        inits = [expCos]
         dx_range = 1 / nx_range
         return_error = True
         print_courant = False
         init_errors = []
-        error_filenames = ['FDcosError.pdf', 'SpectralcosError.pdf', 'squareError.pdf', 'SpectralsquareError.pdf']
+        error_filenames = ['FDError.pdf', 'SpectralError.pdf']
         idx = 0
 
         # Create separate plots for each initial condition comparing finitie difference schemes
@@ -160,8 +161,9 @@ def main():
             plt.close()
             idx +=1
             # Plot the error for the spectral method
-            plt.plot(dx_range, nx_errors[-1], label='Spectral')
-            plt.xlabel('Stepsize')
+            plt.plot(nx_range, nx_errors[-1], label='Spectral')
+            plt.yscale('log')
+            plt.xlabel('Number of grid points / Fourier modes')
             plt.ylabel('l2 error')
             plt.grid()
             plt.legend()
@@ -170,7 +172,7 @@ def main():
             idx+=1
 
     # Parameters to test over
-    nx_range = np.arange(10, 100)
+    nx_range = np.arange(3, 33, 5)
     plotErrors(nx_range)
 
 # Run script
