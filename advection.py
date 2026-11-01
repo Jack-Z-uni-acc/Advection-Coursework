@@ -8,7 +8,7 @@ def main():
     import matplotlib.pyplot as plt
     import numpy as np
     import os
-    from advectionHelpers import cosBell_01_05, indicator_01_05, l2error, expCos
+    from advectionHelpers import cosBell_01_05, indicator_01_05, l2error, expCos, l2norm
     from schemes import FTBS, CTCS, FTCS, Spectral
 
     # First make sure that the plots folder exists
@@ -40,10 +40,18 @@ def main():
                           the graph. If [None,None] is specified then default limits
                           are used.
         Returns:
-            None if return_error is False
             errors (1darray): 1d array of l2 error at endTime incurred by each scheme
                               if return_error is True.
+            norms (2darray): 2d array of change in l2 norm of the numerical solution
+                             from initial l2 norm over time for each scheme if
+                             return_error is True
+            None if return_error is False
         '''
+
+        # First make sure that the solutions folder exists
+        if not os.path.exists("plots/solutions"):
+            os.makedirs("plots/solutions")
+
         # Derived parameters
         dx = (xLim[1] - xLim[0])/nx
         x = np.arange(xLim[0], xLim[1], dx)
@@ -67,20 +75,28 @@ def main():
         
         if return_error:
             errors = []
+            norms = []
+            correct_norm = l2norm(phiA)
 
         # Calculate the results of all of the schemes and plot / record error
         for i in range(len(schemes)):
             # The solution, phi, is stored as a list of arrays at different time
             # steps, phiLevels. Initially just the initial conditions. The latest
             # time level array is always phiLevels[-1]
+            # l2 errors and l2 norms of the numerical solutions are stored as arrays
             phiLevels = [phi0.copy()]
+            if return_error:
+                scheme_norms = [correct_norm]
             for _ in range(nt):
                 schemes[i](phiLevels, params)
+                if return_error:
+                    scheme_norms.append(l2norm(phiLevels[-1]))
             if plot:
                 plt.plot(x, phiLevels[-1], cols[i], label = schemes[i].__name__)
             if return_error:
                 err = l2error(phiLevels[-1], phiA)
                 errors.append(err)
+                norms.append(np.array(scheme_norms))
         
         # Plot solution snapshots
         if plot:
@@ -89,13 +105,14 @@ def main():
             plt.xlabel('x')
             plt.ylabel(r'$\phi$')
             plt.legend()
-            plt.savefig("plots/"+outFile)
+            plt.savefig("plots/solutions/"+outFile)
             plt.close()
 
         # Return the l2 error for each scheme
         if return_error:
             errors = np.array(errors)
-            return errors
+            norms = np.array(norms)
+            return errors, norms - correct_norm
 
     # List of functions to do the advection
     schemes = [[FTBS, CTCS, FTCS], [FTBS, CTCS, Spectral]]
@@ -118,7 +135,7 @@ def main():
 
     def plotErrors(nx_range, nt=20, xLim=[0,1], endTime=0.2):
         '''
-        Author: Jack Zanker <j.zanker@imperial.ac.uk>
+        Author: Jack Zanker <j.zanker26@imperial.ac.uk>
         Plots the l2 error at terminal time for numerical advection schemes relative to 
         spatial discretisation stepsizes.
         Parameters:
@@ -131,8 +148,12 @@ def main():
             None
         '''
 
+        # First make sure that the errors folder exists
+        if not os.path.exists("plots/errors"):
+            os.makedirs("plots/errors")
+
         # Setup parameters to test over a range of schemes and discretisation steps
-        all_schemes = [FTBS, CTCS, Spectral]
+        test_schemes = [FTBS, CTCS, Spectral]
         inits = [expCos]
         dx_range = 1 / nx_range
         return_error = True
@@ -141,23 +162,23 @@ def main():
         error_filenames = ['FDError.pdf', 'SpectralError.pdf']
         idx = 0
 
-        # Create separate plots for each initial condition comparing finitie difference schemes
+        # Create separate plots for each initial condition comparing finite difference schemes
         for init in inits:
             # Error as a function of spatial discretisation step
             nx_errors = []
             for nx in nx_range:
-                error = compareSchemes(init, all_schemes, nx=nx, nt=20, u=1, endTime=endTime, xLim=xLim,
+                error, _ = compareSchemes(init, test_schemes, nx=nx, nt=20, u=1, endTime=endTime, xLim=xLim,
                              print_courant=print_courant, return_error=True)
                 nx_errors.append(error)
             nx_errors = np.array(nx_errors).T
             # Produce and save error plots
-            for i in range(len(all_schemes) - 1):
-                plt.plot(dx_range, nx_errors[i], label=all_schemes[i].__name__)
+            for i in range(len(test_schemes) - 1):
+                plt.plot(dx_range, nx_errors[i], label=test_schemes[i].__name__)
             plt.xlabel('Stepsize')
             plt.ylabel('l2 error')
             plt.grid()
             plt.legend()
-            plt.savefig('plots/'+error_filenames[idx])
+            plt.savefig('plots/errors/'+error_filenames[idx])
             plt.close()
             idx +=1
             # Plot the error for the spectral method
@@ -167,7 +188,7 @@ def main():
             plt.ylabel('l2 error')
             plt.grid()
             plt.legend()
-            plt.savefig('plots/'+error_filenames[idx])
+            plt.savefig('plots/errors/'+error_filenames[idx])
             plt.close()
             idx+=1
 
@@ -175,6 +196,35 @@ def main():
     nx_range = np.arange(3, 33, 5)
     plotErrors(nx_range)
 
+    def normConservation(init, schemes, outFile='plots/norms.pdf'):
+        '''
+        Author: Jack Zanker <j.zanker26@imperial.ac.uk>
+        Plots the l2 norm over time for numerical advection schemes relative to 
+        intitial l2 norm
+        Parameters:
+            init (function): Initial condition
+            schemes [functions]: List of numerical advection schemes
+            outFile (string): Filename for saving error plot
+        Returns:
+            None
+        '''
+        _, norms = compareSchemes(init, schemes, return_error=True, print_courant=False)
+        
+        # Plot change in norm over time
+        x_axis = np.arange(0, norms.shape[1])
+        for i in range(norms.shape[0]):
+            plt.plot(x_axis, norms[i], label=schemes[i].__name__)
+        plt.xlabel('Timesteps')
+        plt.ylabel('Difference in l2 norm from initial condition')
+        plt.grid()
+        plt.legend()
+        plt.savefig(outFile)
+        plt.close()
+
+    # Test norm conservation over all schemes
+    all_schemes = [FTBS, CTCS, FTCS, Spectral]
+    normConservation(expCos, all_schemes)
+        
 # Run script
 
 if __name__ == '__main__':

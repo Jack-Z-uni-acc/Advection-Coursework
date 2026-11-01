@@ -69,3 +69,15 @@ def l2error(phi, phiA):
     phiError = phi - phiA
     l2 = np.sqrt(np.sum(phiError**2)/np.sum(phiA**2))
     return l2
+
+def l2norm(phi):
+    '''
+    Returns the l2 norm of phi
+    Author: Jack Zanker <j.zanker26@imperial.ac.uk>
+    Parameters:
+        phi (1darray): Numerical solution
+    Returns:
+        l2 (float): The l2 norm
+    '''
+    l2 = np.sqrt(np.sum(phi**2))
+    return l2
