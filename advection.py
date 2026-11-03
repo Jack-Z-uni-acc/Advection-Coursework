@@ -209,7 +209,7 @@ def main():
             None
         '''
         _, norms = compareSchemes(init, schemes, nx=40, nt=20, u=1, endTime=0.2,
-                                  xLim=[0,1], return_error=True)
+                                  xLim=[0,1], return_error=True, print_courant=False)
         
         # Plot change in norm over time
         x_axis = np.arange(0, norms.shape[1])
