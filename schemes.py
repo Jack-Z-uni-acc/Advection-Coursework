@@ -104,7 +104,7 @@ def CTCS(phiLevels, params):
 
 def Spectral(phiLevels, params):
     '''
-    Author: Jack Zanker <j.zanker@imperial.ac.uk>
+    Author: Jack Zanker <j.zanker26@imperial.ac.uk>
     Solves the linear advection equation for one time step using the spectral method.
     phiLevels is updated. Nothing is returned
     Parameters:
